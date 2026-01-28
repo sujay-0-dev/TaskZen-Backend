@@ -1,117 +1,145 @@
+require('dotenv').config();
+
 const express = require('express');
+const mongoose = require('mongoose');
+
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB Connected"))
+  .catch(err => console.log(err.message));
 
-let users = [
-  { id: 1, name: 'Alice' },
-  { id: 2, name: 'Bob' }
-];
+const TodoSchema = new mongoose.Schema({
+  userId: {
+    type: Number,
+    required: true
+  },
+  title: {
+    type: String,
+    required: true
+  },
+  completed: {
+    type: Boolean,
+    default: false
+  }
+});
 
+const Todo = mongoose.model('Todo', TodoSchema);
 
-let todos = [
-  { id: 1, userId: 1, title: 'Learn Backend', completed: false },
-  { id: 2, userId: 2, title: 'Practice Express', completed: true }
-];
-
-let nextTodoId = 3;
-
-
-app.post('/users/:userId/todos', (req, res) => {
-  const userId = parseInt(req.params.userId);
+app.post('/users/:userId/todos', async (req, res) => {
+  const userId = Number(req.params.userId);
   const { title } = req.body;
 
-  const user = users.find(u => u.id === userId);
-  if (!user) {
-    return res.status(404).json({ error: 'User not found' });
+  if (!Number.isInteger(userId)) {
+    return res.status(400).json({ error: 'Invalid userId' });
   }
 
   if (!title) {
     return res.status(400).json({ error: 'Title is required' });
   }
 
-  const newTodo = {
-    id: nextTodoId++,
-    userId,
-    title,
-    completed: false
-  };
+  try {
+    const todo = await Todo.create({
+      userId,
+      title,
+      completed: false
+    });
 
-  todos.push(newTodo);
-  res.status(201).json(newTodo);
+    res.status(201).json(todo);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
+app.get('/users/:userId/todos', async (req, res) => {
+  const userId = Number(req.params.userId);
 
-app.get('/users/:userId/todos', (req, res) => {
-  const userId = parseInt(req.params.userId);
-
-  const userTodos = todos.filter(t => t.userId === userId);
-  res.json(userTodos);
-});
-
-
-app.get('/users/:userId/todos/:id', (req, res) => {
-  const userId = parseInt(req.params.userId);
-  const id = parseInt(req.params.id);
-
-  const todo = todos.find(
-    t => t.id === id && t.userId === userId
-  );
-
-  if (!todo) {
-    return res.status(404).json({ error: 'Todo not found' });
+  if (!Number.isInteger(userId)) {
+    return res.status(400).json({ error: 'Invalid userId' });
   }
 
-  res.json(todo);
+  try {
+    const todos = await Todo.find({ userId });
+    res.json(todos);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
+app.get('/users/:userId/todos/:id', async (req, res) => {
+  const userId = Number(req.params.userId);
+  const id = req.params.id;
 
-app.put('/users/:userId/todos/:id', (req, res) => {
-  const userId = parseInt(req.params.userId);
-  const id = parseInt(req.params.id);
-
-  const index = todos.findIndex(
-    t => t.id === id && t.userId === userId
-  );
-
-  if (index === -1) {
-    return res.status(404).json({ error: 'Todo not found' });
+  if (!Number.isInteger(userId)) {
+    return res.status(400).json({ error: 'Invalid userId' });
   }
 
-  todos[index] = {
-    ...todos[index],
-    ...req.body,
-    id,
-    userId
-  };
+  try {
+    const todo = await Todo.findOne({ _id: id, userId });
 
-  res.json(todos[index]);
+    if (!todo) {
+      return res.status(404).json({ error: 'Todo not found' });
+    }
+
+    res.json(todo);
+  } catch (err) {
+    res.status(500).json({ error: 'Invalid Todo ID' });
+  }
 });
 
+app.put('/users/:userId/todos/:id', async (req, res) => {
+  const userId = Number(req.params.userId);
+  const id = req.params.id;
 
-app.delete('/users/:userId/todos/:id', (req, res) => {
-  const userId = parseInt(req.params.userId);
-  const id = parseInt(req.params.id);
-
-  const index = todos.findIndex(
-    t => t.id === id && t.userId === userId
-  );
-
-  if (index === -1) {
-    return res.status(404).json({ error: 'Todo not found' });
+  if (!Number.isInteger(userId)) {
+    return res.status(400).json({ error: 'Invalid userId' });
   }
 
-  todos.splice(index, 1);
-  res.status(204).send();
+  try {
+    const updatedTodo = await Todo.findOneAndUpdate(
+      { _id: id, userId },
+      req.body,
+      { new: true }
+    );
+
+    if (!updatedTodo) {
+      return res.status(404).json({ error: 'Todo not found' });
+    }
+
+    res.json(updatedTodo);
+  } catch (err) {
+    res.status(500).json({ error: 'Invalid Todo ID' });
+  }
 });
 
+app.delete('/users/:userId/todos/:id', async (req, res) => {
+  const userId = Number(req.params.userId);
+  const id = req.params.id;
+
+  if (!Number.isInteger(userId)) {
+    return res.status(400).json({ error: 'Invalid userId' });
+  }
+
+  try {
+    const deletedTodo = await Todo.findOneAndDelete({ _id: id, userId });
+
+    if (!deletedTodo) {
+      return res.status(404).json({ error: 'Todo not found' });
+    }
+
+    res.status(204).send();
+  } catch (err) {
+    res.status(500).json({ error: 'Invalid Todo ID' });
+  }
+});
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
-app.listen(3000, () => {
-  console.log('Server running on http://localhost:3000');
+app.listen(process.env.PORT || 3000, () => {
+  console.log(`Server running on http://localhost:${process.env.PORT || 3000}`);
 });
