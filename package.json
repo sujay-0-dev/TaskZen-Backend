@@ -1,0 +1,14 @@
+{
+    "name": "taskflow-monorepo",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "install:backend": "cd backend && npm install",
+        "install:frontend": "cd frontend && npm install",
+        "install:all": "npm run install:backend && npm run install:frontend",
+        "start": "bash start.sh",
+        "backend": "cd backend && npm start",
+        "frontend": "cd frontend && npm run dev",
+        "build:frontend": "cd frontend && npm run build"
+    }
+}

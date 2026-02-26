@@ -1,224 +1,87 @@
-# TaskFlow — Task Management Application
+# TaskFlow — Modern Full Stack Task Management
 
-A production-ready **Full Stack Task Management Application** built with:
-- 🚀 **Backend**: Node.js + Express.js + MongoDB
-- ⚛️ **Frontend**: React.js (Vite)
-- 🔐 **Auth**: JWT via httpOnly cookies + bcryptjs password hashing
-- 🔒 **Security**: AES-256 encryption, Helmet, Rate Limiting, Input Validation
-- 📡 **API**: RESTful API with Pagination, Filtering & Search
+TaskFlow is a production-ready, security-first task management application built with the **MERN (MongoDB, Express, React, Node)** stack. It features a stunning glassmorphism UI, comprehensive JWT-based authentication, and enterprise-grade security practices.
 
 ---
 
-## Project Structure
+## ✨ Features
 
-```
-Task-Project/
-├── backend/
-│   ├── src/
-│   │   ├── config/          # Database connection
-│   │   ├── controllers/     # authController, taskController
-│   │   ├── middleware/       # auth (JWT), encryption (AES), validate, errorHandler
-│   │   ├── models/          # User.js, Task.js (Mongoose)
-│   │   └── routes/          # auth.js, tasks.js
-│   ├── server.js            # Express app entry
-│   ├── .env.example
-│   └── package.json
-└── frontend/
-    ├── src/
-    │   ├── api/             # axios client, auth.js, tasks.js
-    │   ├── components/      # Navbar, TaskCard, TaskModal, ConfirmDialog, ProtectedRoute
-    │   ├── context/         # AuthContext.jsx
-    │   ├── hooks/           # useTasks.js
-    │   ├── pages/           # LoginPage, RegisterPage, DashboardPage, NotFoundPage
-    │   └── styles/          # global.css
-    ├── .env.example
-    └── index.html
-```
+### 💎 Premium Experience
+- **Modern Landing Page**: High-conversion landing page with hero, features, stats, and call-to-action.
+- **Glassmorphism UI**: A dark-themed, sleek design system using the Inter font for a premium feel.
+- **Responsive Design**: Fully optimized for Mobile, Tablet, and Desktop.
+
+### 📋 Advanced Task Management
+- **Smart Dashboard**: Visual stat cards for quick task overview.
+- **Filtering & Search**: Debounced real-time search and status-based filtering (Todo, In Progress, Done).
+- **Pagination**: Efficient server-side pagination for handling thousands of tasks.
+- **CRUD 2.0**: Seamless creation, expansion, editing, and deletion of tasks with toast notifications.
+
+### 🔐 Security & User Profiles
+- **JWT Authentication**: Secure tokens stored in `httpOnly` cookies to mitigate XSS attacks.
+- **AES-256 Encryption**: Encrypted sensitive data fields using standard cryptographic libraries.
+- **Identity Management**: Editable user profiles with name, email, join date, and password change flows.
+- **Rate Limiting**: Brute-force protection on all sensitive endpoints.
 
 ---
 
-## Quick Start
+## 🛠️ Technology Stack
+
+| Layer | Stack | Key Libraries |
+|---|---|---|
+| **Frontend** | React (Vite) | `lucide-react`, `react-router-dom`, `react-hook-form`, `axios`, `react-toastify` |
+| **Backend** | Node.js (Express) | `jsonwebtoken`, `cookie-parser`, `helmet`, `bcryptjs`, `crypto-js`, `express-validator` |
+| **Database** | MongoDB Atlas | `mongoose` |
+| **Styling** | Vanilla CSS | Custom design tokens, glassmorphism, responsive utilities |
+
+---
+
+## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js >= 18
-- MongoDB (local or Atlas)
+- Node.js (v18+)
+- MongoDB Atlas account (for the database)
 
-### 1. Backend Setup
+### Installation
 
-```bash
-cd backend
-cp .env.example .env
-# Edit .env with your MongoDB URI and secrets
-npm install
-npm run dev
-```
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd Task-Project
+   ```
 
-Backend runs on: `http://localhost:5000`
+2. **Backend Setup**
+   ```bash
+   cd backend
+   npm install
+   # Create .env based on .env.example
+   npm run dev
+   ```
 
-### 2. Frontend Setup
-
-```bash
-cd frontend
-cp .env.example .env
-npm install
-npm run dev
-```
-
-Frontend runs on: `http://localhost:5173`
-
----
-
-## Environment Variables
-
-### Backend `.env`
-| Variable | Description |
-|---|---|
-| `PORT` | Server port (default: 5000) |
-| `MONGODB_URI` | MongoDB connection string |
-| `JWT_SECRET` | JWT signing secret (min 32 chars) |
-| `JWT_EXPIRES_IN` | Token expiry (e.g., `7d`) |
-| `AES_SECRET_KEY` | AES-256 encryption key (32 chars) |
-| `CLIENT_URL` | Frontend URL for CORS |
-
-### Frontend `.env`
-| Variable | Description |
-|---|---|
-| `VITE_API_URL` | Backend API base URL |
+3. **Frontend Setup**
+   ```bash
+   cd frontend
+   npm install
+   # Create .env based on .env.example (pointing to backend URL)
+   npm run dev
+   ```
 
 ---
 
-## API Documentation
+## 📂 Architecture
 
-### Authentication
+The project follows a clean **MVC (Model-View-Controller)** pattern on the backend and a **Component-based** architecture on the frontend.
 
-#### `POST /api/auth/register`
-Register a new user.
-
-**Request:**
-```json
-{
-  "name": "John Doe",
-  "email": "john@example.com",
-  "password": "password123"
-}
-```
-**Response (201):**
-```json
-{ "success": true, "data": { "_id": "...", "name": "John Doe", "email": "john@example.com" } }
-```
-Sets `token` httpOnly cookie.
+- **Frontend Context**: `AuthContext.jsx` manages global user state and authentication persistence.
+- **Backend Middleware**: Specialized handlers for Auth, Validation, Encryption, and Error Handling.
+- **Database Indexing**: Compound indexing on `userId` and `title` for lightning-fast search performance.
 
 ---
 
-#### `POST /api/auth/login`
-Login with email and password.
+## 📄 License
 
-**Request:**
-```json
-{ "email": "john@example.com", "password": "password123" }
-```
-**Response (200):**
-```json
-{ "success": true, "data": { "_id": "...", "name": "John Doe", "email": "john@example.com" } }
-```
+This project is licensed under the MIT License.
 
 ---
 
-#### `POST /api/auth/logout` *(protected)*
-Clears the auth cookie.
-
-#### `GET /api/auth/me` *(protected)*
-Returns current user object.
-
----
-
-### Tasks *(all protected)*
-
-#### `GET /api/tasks`
-List tasks with optional filters.
-
-**Query Params:**
-| Param | Type | Description |
-|---|---|---|
-| `page` | number | Page number (default: 1) |
-| `limit` | number | Per page (default: 10, max: 50) |
-| `status` | string | `todo` \| `in-progress` \| `done` |
-| `search` | string | Search by title (case-insensitive) |
-
-**Response:**
-```json
-{
-  "success": true,
-  "data": [...],
-  "pagination": {
-    "currentPage": 1, "totalPages": 3, "totalTasks": 27,
-    "limit": 10, "hasNextPage": true, "hasPrevPage": false
-  }
-}
-```
-
----
-
-#### `POST /api/tasks`
-Create a new task.
-
-**Request:**
-```json
-{ "title": "Fix login bug", "description": "...", "status": "todo" }
-```
-
-#### `GET /api/tasks/:id`
-Get a single task by ID.
-
-#### `PUT /api/tasks/:id`
-Update a task.
-
-**Request:**
-```json
-{ "title": "Updated title", "status": "done" }
-```
-
-#### `DELETE /api/tasks/:id`
-Delete a task.
-
-**Response:**
-```json
-{ "success": true, "message": "Task deleted successfully." }
-```
-
----
-
-## Security Implementation
-
-| Feature | Implementation |
-|---|---|
-| Password Hashing | bcryptjs with 12 salt rounds |
-| Authentication | JWT stored in httpOnly, Secure, SameSite=Strict cookie |
-| HTTP Security Headers | Helmet.js |
-| Rate Limiting | express-rate-limit (20 req/15min on auth, 200 on API) |
-| Payload Encryption | AES-256 via crypto-js |
-| Input Validation | express-validator on all endpoints |
-| Authorization | Users can only access their own tasks |
-| CORS | Configured to only allow the frontend origin |
-
----
-
-## Architecture
-
-```
-Client (React SPA)
-     ↓ HTTPS + httpOnly Cookie (JWT)
-Express.js Server
-     ├── Helmet (security headers)
-     ├── CORS (whitelist)
-     ├── Rate Limiter
-     ├── Cookie Parser
-     ├── Auth Middleware (JWT verify)
-     └── Routes
-          ├── /api/auth → authController
-          └── /api/tasks → taskController
-                     ↓
-               Mongoose ODM
-                     ↓
-               MongoDB Database
-```
+*Developed as part of a Technical Assessment.*
