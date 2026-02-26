@@ -2,13 +2,17 @@
     "name": "taskflow-monorepo",
     "version": "1.0.0",
     "private": true,
+    "workspaces": [
+        "backend",
+        "frontend"
+    ],
     "scripts": {
-        "install:backend": "cd backend && npm install",
-        "install:frontend": "cd frontend && npm install",
-        "install:all": "npm run install:backend && npm run install:frontend",
-        "start": "bash start.sh",
-        "backend": "cd backend && npm start",
-        "frontend": "cd frontend && npm run dev",
-        "build:frontend": "cd frontend && npm run build"
+        "install:all": "npm install",
+        "start": "npm start --workspace=backend",
+        "backend": "npm start --workspace=backend",
+        "frontend": "npm start --workspace=frontend",
+        "build:frontend": "npm run build --workspace=frontend",
+        "dev:backend": "npm run dev --workspace=backend",
+        "dev:frontend": "npm run dev --workspace=frontend"
     }
 }
