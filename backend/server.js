@@ -13,6 +13,15 @@ const { errorHandler, notFound } = require('./src/middleware/errorHandler');
 // Connect to MongoDB
 connectDB();
 
+// Validate critical environment variables
+const requiredEnv = ['JWT_SECRET', 'AES_SECRET_KEY', 'MONGODB_URI'];
+const missingEnv = requiredEnv.filter(env => !process.env[env]);
+if (missingEnv.length > 0) {
+    console.error(`❌ CRITICAL ERROR: Missing environment variables: ${missingEnv.join(', ')}`);
+    console.error('Please set these in your Render/deployment dashboard.');
+    // Don't exit here to allow Render to keep the process alive for logs, but requests will fail clearly
+}
+
 const app = express();
 
 // ── Security Middleware ──────────────────────────────────────────────────────
@@ -20,16 +29,22 @@ app.use(helmet({
     crossOriginResourcePolicy: { policy: 'cross-origin' },
 }));
 
-const corsOrigin =
-    process.env.NODE_ENV === 'production'
-        ? process.env.CLIENT_URL
-        : (origin, callback) => callback(null, true); // allow all localhost origins in dev
+const corsOrigin = (origin, callback) => {
+    const allowedOrigins = [process.env.CLIENT_URL];
+
+    // Always allow localhost in development or if explicitly added
+    if (!origin || !process.env.CLIENT_URL || allowedOrigins.includes(origin) || origin.startsWith('http://localhost:')) {
+        callback(null, true);
+    } else {
+        callback(new Error('Not allowed by CORS'));
+    }
+};
 
 app.use(cors({
     origin: corsOrigin,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
 }));
 
 // Rate limiting on auth endpoints (prevent brute force)
