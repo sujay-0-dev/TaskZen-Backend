@@ -24,6 +24,9 @@ if (missingEnv.length > 0) {
 
 const app = express();
 
+// Trust proxy (needed for express-rate-limit behind Render's load balancer)
+app.set('trust proxy', 1);
+
 // ── Security Middleware ──────────────────────────────────────────────────────
 app.use(helmet({
     crossOriginResourcePolicy: { policy: 'cross-origin' },
