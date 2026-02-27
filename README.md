@@ -36,35 +36,25 @@ TaskFlow is a production-ready, security-first task management application built
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Deployment
 
-### Prerequisites
-- Node.js (v18+)
-- MongoDB Atlas account (for the database)
+### 1. Backend (Render)
+- **Root Directory**: `backend`
+- **Build Command**: `npm install`
+- **Start Command**: `node server.js`
+- **Environment Variables**:
+  - `MONGODB_URI`: Your MongoDB Atlas connection string.
+  - `JWT_SECRET`: A long random string.
+  - `AES_SECRET_KEY`: A random 32-character hex string.
+  - `CLIENT_URL`: Your Vercel frontend URL (e.g., `https://your-app.vercel.app`).
 
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd Task-Project
-   ```
-
-2. **Backend Setup**
-   ```bash
-   cd backend
-   npm install
-   # Create .env based on .env.example
-   npm run dev
-   ```
-
-3. **Frontend Setup**
-   ```bash
-   cd frontend
-   npm install
-   # Create .env based on .env.example (pointing to backend URL)
-   npm run dev
-   ```
+### 2. Frontend (Vercel)
+1. **Import Repository**: Connect your GitHub and select the `Task-Project` repo.
+2. **Framework Preset**: Select `Vite`.
+3. **Root Directory**: Edit this to be `frontend`.
+4. **Environment Variables**:
+   - Add `VITE_API_URL`: `https://taskzen-backend-1-z2xs.onrender.com/api/`
+5. **Deploy**: Hit "Deploy" and Vercel will handle the rest!
 
 ---
 
