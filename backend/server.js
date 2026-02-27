@@ -30,10 +30,11 @@ app.use(helmet({
 }));
 
 const corsOrigin = (origin, callback) => {
-    const allowedOrigins = [process.env.CLIENT_URL];
+    const clientUrl = process.env.CLIENT_URL;
+    const allowedOrigins = clientUrl ? clientUrl.split(',').map(url => url.trim()) : [];
 
     // Always allow localhost in development or if explicitly added
-    if (!origin || !process.env.CLIENT_URL || allowedOrigins.includes(origin) || origin.startsWith('http://localhost:')) {
+    if (!origin || !clientUrl || allowedOrigins.includes(origin) || origin.startsWith('http://localhost:')) {
         callback(null, true);
     } else {
         callback(new Error('Not allowed by CORS'));
